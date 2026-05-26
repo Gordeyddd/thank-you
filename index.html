@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Спасибо вам, любимые родители</title>
+    <style>
+        /* Базовый сброс и запрет лишних свайпов на мобилках */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent; /* Убирает синюю рамку при тапе на айфонах */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(180deg, #f9fbfd 0%, #f1f5f9 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            color: #2d3748;
+            overflow-x: hidden;
+        }
+
+        /* Задний фон с мягким свечением, адаптированный под вертикальный экран */
+        .bg-glow {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .sphere {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.6;
+        }
+        .sphere-top {
+            width: 250px;
+            height: 250px;
+            background: #ffe4e6;
+            top: -50px;
+            right: -30px;
+        }
+        .sphere-bottom {
+            width: 300px;
+            height: 300px;
+            background: #e0f2fe;
+            bottom: -50px;
+            left: -50px;
+        }
+
+        /* Адаптивный мобильный конверт/карточка */
+        .letter-card {
+            position: relative;
+            z-index: 2;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            padding: 32px 24px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(148, 163, 184, 0.12);
+            width: 100%;
+            max-width: 450px; /* Идеально для всех современных смартфонов */
+            opacity: 0;
+            transform: translateY(20px);
+            animation: mobileFadeIn 1s cubic-bezier(0.215, 0.610, 0.355, 1) forwards;
+        }
+
+        /* Элегантная тонкая полоска-акцент */
+        .letter-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 30px;
+            right: 30px;
+            height: 3px;
+            background: linear-gradient(90deg, #fda4af, #fed7aa);
+            border-radius: 0 0 3px 3px;
+        }
+
+        /* Заголовок */
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            color: #1e293b;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+        .header p {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        /* Текст адаптирован под вертикальное чтение большим пальцем */
+        .body-text {
+            font-size: 1.1rem;
+            line-height: 1.75;
+            color: #334155;
+        }
+        .body-text p {
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(15px);
+            animation: mobileFadeIn 0.8s cubic-bezier(0.215, 0.610, 0.355, 1) forwards;
+        }
+
+        /* Поочередное появление абзацев, чтобы глаза успевали за текстом */
+        .body-text p:nth-child(1) { animation-delay: 0.2s; }
+        .body-text p:nth-child(2) { animation-delay: 0.5s; }
+        .body-text p:nth-child(3) { animation-delay: 0.8s; }
+        .body-text p:nth-child(4) { animation-delay: 1.1s; }
+
+        /* Футер */
+        .footer {
+            margin-top: 36px;
+            text-align: center;
+            opacity: 0;
+            animation: simpleFade 1s ease forwards;
+            animation-delay: 1.4s;
+        }
+        .signature {
+            font-family: Georgia, serif;
+            font-style: italic;
+            font-size: 1.2rem;
+            color: #1e293b;
+            margin-bottom: 16px;
+        }
+
+        /* Мобильная кнопка-сердце с областью для точного тапа */
+        .heart-btn {
+            position: relative;
+            display: inline-block;
+            font-size: 2.2rem;
+            width: 60px;
+            height: 60px;
+            line-height: 60px;
+            cursor: pointer;
+            user-select: none;
+            animation: heartbeat 2s infinite;
+        }
+        /* Эффект нажатия на экране телефона */
+        .heart-btn:active {
+            transform: scale(0.85);
+            animation: none;
+        }
+
+        /* Стили для вылетающих сердечек (спаркли) */
+        .sparkle-heart {
+            position: fixed;
+            pointer-events: none;
+            font-size: 1.2rem;
+            z-index: 10;
+            animation: flyUp 1s ease-out forwards;
+        }
+
+        /* Анимации */
+        @keyframes mobileFadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes simpleFade {
+            to { opacity: 1; }
+        }
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.1); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.15); }
+            70% { transform: scale(1); }
+        }
+        @keyframes flyUp {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--x), var(--y)) scale(0.5);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow">
+        <div class="sphere sphere-top"></div>
+        <div class="sphere sphere-bottom"></div>
+    </div>
+
+    <div class="letter-card">
+        <div class="header">
+            <h1>Дорогие родители</h1>
+        </div>
+
+        <div class="body-text">
+            <p>Я хочу сказать то, что мы так редко произносим вслух в ежедневной спешке. Огромное спасибо вам за всё, что вы для меня сделали и продолжаете делать. За заботу, любовь, поддержку ❤️</p>
+
+            <p>Я очень ценю вашу веру в меня, когда даже я сомневаюсь в своих силах. Спасибо за ваше терпение, помощь в любой ситуации. Спасибо за радость, которую вы разделяете со мной в хорошие моменты ☺️</p>
+
+            <p>Без ваших наставлений и поддержки я бы точно не стал тем, кем я являюсь сейчас. Мои успехи - это <strong>наши общие успехи</strong>.</p>
+
+            <p>Мама, спасибо за твою нежность, теплоту и готовность помочь 💗</p>
+
+            <p>Я очень вас люблю и горжусь тем, что я ваш сын. Спасибо за тепло и за чувство уверенности, которое вы мне дарите. Спасибо за то, что вы у меня есть ✨</p>
+        </div>
+
+        <div class="footer">
+            <div class="signature">С любовью, ваш сын</div>
+            <div class="heart-btn" id="heart">❤️</div>
+            <div><p>(нажми на сердечко)</p></div>
+        </div>
+    </div>
+
+    <script>
+        const heartBtn = document.getElementById('heart');
+
+        heartBtn.addEventListener('click', (e) => {
+            // Создаем 5 маленьких сердечек при каждом тапе
+            for (let i = 0; i < 5; i++) {
+                createSparkle(e.clientX, e.clientY);
+            }
+        });
+
+        function createSparkle(clientX, clientY) {
+            const sparkle = document.createElement('div');
+            sparkle.classList.add('sparkle-heart');
+            sparkle.innerHTML = '❤️';
+
+            // Если координаты клика не определились (например, программный тап), берем центр кнопки
+            const x = clientX || window.innerWidth / 2;
+            const y = clientY || window.innerHeight * 0.8;
+
+            sparkle.style.left = `${x - 10}px`;
+            sparkle.style.top = `${y - 10}px`;
+
+            // Генерируем случайное направление разлета в стороны и вверх
+            const destinationX = (Math.random() - 0.5) * 150;
+            const destinationY = -Math.random() * 150 - 50;
+
+            sparkle.style.setProperty('--x', `${destinationX}px`);
+            sparkle.style.setProperty('--y', `${destinationY}px`);
+
+            document.body.appendChild(sparkle);
+
+            // Удаляем элемент после завершения анимации
+            setTimeout(() => {
+                sparkle.remove();
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
